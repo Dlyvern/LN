@@ -1,0 +1,173 @@
+#include<fstream>
+#include<iostream>
+#include<string>
+
+class LN
+{
+private:
+
+	int* _stack = nullptr;
+	int _sizeOfStack = 0;
+
+	int* GetTwoLeftNumbersOfStack()
+	{
+		int* TwoLeftNumbersOfStack = new int[2];
+		TwoLeftNumbersOfStack[0] = _stack[_sizeOfStack - 1];
+		TwoLeftNumbersOfStack[1] = _stack[_sizeOfStack - 2];
+		return TwoLeftNumbersOfStack;
+	}
+
+	void CreateNewMassiv(int newSize)
+	{
+		if (_stack == nullptr)
+		{
+			_stack = new int[_sizeOfStack];
+			return;
+		}
+
+		int* newMassiv = new int[newSize];
+
+		for (int i = 0; i < newSize; ++i)
+			newMassiv[i] = _stack[i];
+
+		int* tmp = _stack;
+
+		_stack = newMassiv;
+
+		delete(tmp);
+	}
+
+
+	void AddNumberToStack(int number)
+	{
+		_sizeOfStack++;
+
+		CreateNewMassiv(_sizeOfStack);
+
+		_stack[_sizeOfStack - 1] = number;
+	}
+
+	int ResultOfTheAction(int * TwoLeftNumbersOfStack, char c)
+	{
+		switch (c)
+		{
+		case '+':
+			return TwoLeftNumbersOfStack[0] + TwoLeftNumbersOfStack[1];
+
+		case '-':
+			return TwoLeftNumbersOfStack[0] - TwoLeftNumbersOfStack[1];
+
+		case '*':
+			return TwoLeftNumbersOfStack[0] * TwoLeftNumbersOfStack[1];
+
+		case '/':
+			return TwoLeftNumbersOfStack[1] / TwoLeftNumbersOfStack[0];
+
+		case '%':
+			return TwoLeftNumbersOfStack[1] % TwoLeftNumbersOfStack[0];
+
+		case '=':
+			if(TwoLeftNumbersOfStack[0] > TwoLeftNumbersOfStack[1])
+				
+		}
+	}
+
+	unsigned int ToDex(char chr)
+	{
+		if (chr >= '0' && chr <= '9')
+			return chr - '0';
+		else if (chr >= 'A' && chr <= 'F')
+			return chr - 'A' + 10;
+		else if (chr >= 'a' && chr <= 'f')
+			return chr - 'a' + 10;
+
+		return -1;
+	}
+
+public:
+
+	void Foo(char c)
+	{
+		if (isdigit(c))
+		{
+			AddNumberToStack(c - '0');
+			return;
+		}
+
+		else if (ToDex(c) != -1)
+		{
+			int number = ToDex(c);
+			AddNumberToStack(number);
+			return;
+		}
+
+		int* TwoLeftNumbersOfStack = GetTwoLeftNumbersOfStack();
+
+		_sizeOfStack--;
+
+		CreateNewMassiv(_sizeOfStack);
+
+		_stack[_sizeOfStack - 1] = ResultOfTheAction(TwoLeftNumbersOfStack, c);
+
+		delete(TwoLeftNumbersOfStack);
+	}
+
+	void Foo(int number)
+	{
+		AddNumberToStack(number * - 1);
+	}
+
+	void PrintResult() const
+	{
+		system("cls");
+		for (int i = 0; i < _sizeOfStack; ++i)
+			std::cout << _stack[i];
+	}
+};
+
+void OpenFileAndWork(const std::string &nameOfFile)
+{
+	std::ifstream in(nameOfFile);
+
+	if (in.is_open())
+	{
+		std::string line;
+
+		LN* ln = new LN();
+
+		while (std::getline(in, line))
+		{
+			for (int i = 0; i < line.size(); ++i)
+			{		
+				if (line[i] == '-' && line.size() > 1)
+					ln->Foo(line[++i] - '0');
+
+				else ln->Foo(line[i]);
+			}
+				
+		}
+
+		ln->PrintResult();
+		delete(ln);
+	}
+
+	in.close();
+}
+
+void GetNameOfTheFile(std::string* nameOfFile)
+{
+	std::cout << "Enter the name of file you want to open: " << '\n';
+	std::cin >> *nameOfFile;
+}
+
+int main()
+{
+
+	std::string nameOfFile;
+
+	GetNameOfTheFile(&nameOfFile);
+
+	OpenFileAndWork(nameOfFile);
+
+	return 0;
+}
